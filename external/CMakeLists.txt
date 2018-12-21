@@ -7,6 +7,7 @@ add_subdirectory(miniupnpc)
 add_subdirectory(cryptopp)
 add_subdirectory(sqlite3)
 add_subdirectory(lz4)
+add_subdirectory(argon2)
 
 if(MSVC)
     add_subdirectory(rocksDB EXCLUDE_FROM_ALL)
