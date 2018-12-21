@@ -5,6 +5,7 @@ set(WITH_MD_LIBRARY OFF CACHE BOOL "Code Generation for static library")
 
 add_subdirectory(miniupnpc)
 add_subdirectory(cryptopp)
+add_subdirectory(argon2)
 
 if(MSVC)
     add_subdirectory(rocksDB EXCLUDE_FROM_ALL)
