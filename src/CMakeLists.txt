@@ -154,7 +154,7 @@ target_link_libraries(zedwallet++ WalletBackend)
 # Add dependencies means we have to build the latter before we build the former
 # In this case it's because we need to have the current version name rather
 # than a cached one
-add_dependencies(chukwatest verion)
+add_dependencies(chukwatest version)
 add_dependencies(cryptotest version)
 add_dependencies(miner version)
 add_dependencies(JsonRpcServer version)
