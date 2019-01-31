@@ -227,7 +227,7 @@ int main(int argc, char** argv)
 
     std::cout << SuccessMsg("\nTest complete. Thanks for waiting.\n")
               << SuccessMsg("Could your post the full output of this test, along with your CPU model, and Operating System?\n\n")
-              << InformationMsg("Post the info here: https://github.com/turtlecoin/turtlecoin/issues/715\n\n\n")
+              << InformationMsg("Post the info here: https://github.com/turtlecoin/turtlecoin/issues/716\n\n\n")
               << "Hit Enter to exit: ";
 
     std::getline(std::cin, ignore);
