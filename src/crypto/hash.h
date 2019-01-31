@@ -200,6 +200,13 @@ namespace Crypto {
     argon2id_hash_raw(CHUKWA_ITERS, CHUKWA_MEMORY, CHUKWA_THREADS, data, length, salt, CHUKWA_SALTLEN, hash.data, CHUKWA_HASHLEN);
   }
 
+  inline void chukwa_slow_hash_variable(const void *data, size_t length, Hash &hash, uint64_t memoryKB, uint64_t iterations) {
+    uint8_t salt[CHUKWA_SALTLEN];
+    memcpy(salt, hash.data, sizeof(salt));
+
+    argon2id_hash_raw(iterations, memoryKB, CHUKWA_THREADS, data, length, salt, CHUKWA_SALTLEN, hash.data, CHUKWA_HASHLEN);
+  }
+
   inline void tree_hash(const Hash *hashes, size_t count, Hash &root_hash) {
     tree_hash(reinterpret_cast<const char (*)[HASH_SIZE]>(hashes), count, reinterpret_cast<char *>(&root_hash));
   }

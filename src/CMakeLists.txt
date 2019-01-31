@@ -20,6 +20,7 @@ file(GLOB_RECURSE Crypto crypto/*)
 file(GLOB_RECURSE CryptoNoteCore CryptoNoteCore/* CryptoNoteConfig.h)
 file(GLOB_RECURSE CryptoNoteProtocol CryptoNoteProtocol/*)
 file(GLOB_RECURSE CryptoTest CryptoTest/*)
+file(GLOB_RECURSE ChukwaTest ChukwaTest/*)
 file(GLOB_RECURSE Errors Errors/*)
 file(GLOB_RECURSE Http HTTP/*)
 file(GLOB_RECURSE JsonRpcServer JsonRpcServer/*)
@@ -51,7 +52,7 @@ else()
 endif()
 
 # Group the files together in IDEs
-source_group("" FILES $${Common} ${Crypto} ${CryptoNoteCore} ${CryptoNoteProtocol} ${TurtleCoind} ${JsonRpcServer} ${Http} ${Logging} ${miner} ${Mnemonics} ${Nigel} ${NodeRpcProxy} ${P2p} ${Rpc} ${Serialization} ${System} ${Transfers} ${Wallet} ${WalletApi} ${WalletBackend} ${zedwallet} ${zedwallet++} ${CryptoTest} ${Errors} ${Utilities} ${SubWallets})
+source_group("" FILES $${Common} ${Crypto} ${CryptoNoteCore} ${CryptoNoteProtocol} ${TurtleCoind} ${JsonRpcServer} ${Http} ${Logging} ${miner} ${Mnemonics} ${Nigel} ${NodeRpcProxy} ${P2p} ${Rpc} ${Serialization} ${System} ${Transfers} ${Wallet} ${WalletApi} ${WalletBackend} ${zedwallet} ${zedwallet++} ${CryptoTest} ${Errors} ${Utilities} ${SubWallets} ${ChukwaTest})
 
 # Define a group of files as a library to link against
 add_library(BlockchainExplorer STATIC ${BlockchainExplorer})
@@ -98,6 +99,7 @@ if(MSVC)
 endif()
 
 add_executable(cryptotest ${CryptoTest} ${CT_SOURCES_OS})
+add_executable(chukwatest ${ChukwaTest} ${CT_SOURCES_OS})
 add_executable(miner ${miner} ${MINER_SOURCES_OS})
 add_executable(service ${service} ${PG_SOURCES_OS})
 add_executable(TurtleCoind ${TurtleCoind} ${DAEMON_SOURCES_OS})
@@ -133,6 +135,7 @@ target_link_libraries(Common __filesystem)
 target_link_libraries(Crypto argon2-static)
 target_link_libraries(CryptoNoteCore Common Logging Crypto P2P Rpc Http Serialization System ${Boost_LIBRARIES})
 target_link_libraries(cryptotest Crypto Common)
+target_link_libraries(chukwatest Crypto Common)
 target_link_libraries(Errors SubWallets)
 target_link_libraries(Logging Common)
 target_link_libraries(miner CryptoNoteCore Rpc System Http Crypto Errors Utilities)
@@ -151,6 +154,7 @@ target_link_libraries(zedwallet++ WalletBackend)
 # Add dependencies means we have to build the latter before we build the former
 # In this case it's because we need to have the current version name rather
 # than a cached one
+add_dependencies(chukwatest verion)
 add_dependencies(cryptotest version)
 add_dependencies(miner version)
 add_dependencies(JsonRpcServer version)
@@ -169,6 +173,7 @@ set_property(TARGET zedwallet++ PROPERTY OUTPUT_NAME "zedwallet-beta")
 set_property(TARGET service PROPERTY OUTPUT_NAME "turtle-service")
 set_property(TARGET miner PROPERTY OUTPUT_NAME "miner")
 set_property(TARGET cryptotest PROPERTY OUTPUT_NAME "cryptotest")
+set_property(TARGET chukwatest PROPERTY OUTPUT_NAME "chukwatest")
 set_property(TARGET WalletApi PROPERTY OUTPUT_NAME "wallet-api")
 
 # Additional make targets, can be used to build a subset of the targets
