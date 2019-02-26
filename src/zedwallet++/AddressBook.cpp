@@ -8,13 +8,13 @@
 
 #include <config/WalletConfig.h>
 
-#include <Errors/ValidateParameters.h>
+#include <errors/ValidateParameters.h>
 
 #include <fstream>
 
 #include <iostream>
 
-#include <Utilities/ColouredMsg.h>
+#include <utilities/ColouredMsg.h>
 #include <zedwallet++/GetInput.h>
 #include <zedwallet++/Transfer.h>
 #include <zedwallet++/Utilities.h>

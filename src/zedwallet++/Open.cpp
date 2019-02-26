@@ -6,17 +6,17 @@
 #include <zedwallet++/Open.h>
 /////////////////////////////
 
-#include <Common/FileSystemShim.h>
+#include <common/FileSystemShim.h>
 
 #include <config/WalletConfig.h>
 
 #include <iostream>
 
-#include <Mnemonics/Mnemonics.h>
+#include <mnemonics/Mnemonics.h>
 
-#include <Errors/ValidateParameters.h>
+#include <errors/ValidateParameters.h>
 
-#include <Utilities/ColouredMsg.h>
+#include <utilities/ColouredMsg.h>
 #include <zedwallet++/CommandImplementations.h>
 #include <zedwallet++/PasswordContainer.h>
 #include <zedwallet++/Utilities.h>

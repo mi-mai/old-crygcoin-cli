@@ -8,7 +8,7 @@
 
 #include <vector>
 
-#include <WalletBackend/WalletBackend.h>
+#include <walletBackend/WalletBackend.h>
 
 std::string yellowANSIMsg(std::string msg);
 

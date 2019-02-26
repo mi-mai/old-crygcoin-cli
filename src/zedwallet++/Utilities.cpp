@@ -14,7 +14,7 @@
 
 #include <iostream>
 
-#include <Utilities/ColouredMsg.h>
+#include <utilities/ColouredMsg.h>
 #include <zedwallet++/PasswordContainer.h>
 
 namespace ZedUtilities
