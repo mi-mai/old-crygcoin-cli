@@ -1,7 +1,7 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
 // Copyright (c) 2014-2018, The Monero Project
 // Copyright (c) 2014-2018, The Aeon Project
-// Copyright (c) 2018, The TurtleCoin Developers
+// Copyright (c) 2018-2019, The TurtleCoin Developers
 //
 // Please see the included LICENSE file for more information.
 
@@ -49,8 +49,8 @@
 #define CHUKWA_HASHLEN 32 // The length of the resulting hash in bytes
 #define CHUKWA_SALTLEN 16 // The length of our salt in bytes
 #define CHUKWA_THREADS 1 // How many threads to use at once
-#define CHUKWA_ITERS   2 // How many iterations we perform as part of our slow-hash
-#define CHUKWA_MEMORY  1792 // This value is in KiB (1.75MB)
+#define CHUKWA_ITERS   3 // How many iterations we perform as part of our slow-hash
+#define CHUKWA_MEMORY  512 // This value is in KiB (0.5MB)
 
 namespace Crypto {
 
@@ -198,7 +198,7 @@ namespace Crypto {
 
   inline void chukwa_slow_hash(const void *data, size_t length, Hash &hash) {
     uint8_t salt[CHUKWA_SALTLEN];
-    memcpy(salt, hash.data, sizeof(salt));
+    memcpy(salt, data, sizeof(salt));
 
     argon2id_hash_raw(CHUKWA_ITERS, CHUKWA_MEMORY, CHUKWA_THREADS, data, length, salt, CHUKWA_SALTLEN, hash.data, CHUKWA_HASHLEN);
   }

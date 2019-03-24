@@ -50,7 +50,7 @@ const std::string CN_TURTLE_LITE_SLOW_HASH_V0 = "5e1891a15d5d85c09baf4a3bbe33675
 const std::string CN_TURTLE_LITE_SLOW_HASH_V1 = "ae7f864a7a2f2b07dcef253581e60a014972b9655a152341cb989164761c180a";
 const std::string CN_TURTLE_LITE_SLOW_HASH_V2 = "b2172ec9466e1aee70ec8572a14c233ee354582bcb93f869d429744de5726a26";
 
-const std::string CN_CHUKWA = "c8c098976b99f7a22ee904e69bcedd2baad26603af3396263f332fa140840485";
+const std::string CHUKWA = "c0dad0eeb9c52e92a1c3aa5b76a3cb90bd7376c28dce191ceeb1096e3a390d2e";
 
 const std::string CN_SOFT_SHELL_V0[] = {
   "5e1891a15d5d85c09baf4a3bbe33675cfa3f77229c8ad66c01779e590528d6d3",
@@ -351,7 +351,7 @@ int main(int argc, char** argv)
 
         std::cout << std::endl;
 
-        TEST_HASH_FUNCTION(chukwa_slow_hash, CN_CHUKWA);
+        TEST_HASH_FUNCTION(chukwa_slow_hash, CHUKWA);
 
         std::cout << std::endl;
 
