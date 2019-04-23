@@ -43,7 +43,7 @@ void MainChainStorage::popBlock() {
   storage.pop_back();
 }
 
-RawBlock MainChainStorage::getBlockByIndex(uint32_t index) const {
+RawBlock MainChainStorage::getBlockByIndex(const uint32_t index) {
   if (index >= storage.size()) {
     throw std::out_of_range("Block index " + std::to_string(index) + " is out of range. Blocks count: " + std::to_string(storage.size()));
   }

@@ -31,7 +31,7 @@ public:
   virtual void pushBlock(const RawBlock& rawBlock) override;
   virtual void popBlock() override;
 
-  virtual RawBlock getBlockByIndex(uint32_t index) const override;
+  virtual RawBlock getBlockByIndex(const uint32_t index) override;
   virtual uint32_t getBlockCount() const override;
 
   virtual void clear() override;

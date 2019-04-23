@@ -44,6 +44,7 @@ namespace DaemonConfig{
       ("c,config-file", "Specify the <path> to a configuration file", cxxopts::value<std::string>(), "<path>")
       ("data-dir", "Specify the <path> to the Blockchain data directory", cxxopts::value<std::string>()->default_value(config.dataDirectory), "<path>")
       ("dump-config", "Prints the current configuration to the screen", cxxopts::value<bool>()->default_value("false")->implicit_value("true"))
+      ("lmdb", "Use lmdb for local cache files", cxxopts::value<bool>(config.useLmdbForLocalCaches)->default_value("false")->implicit_value("true"))
       ("load-checkpoints", "Specify a file <path> containing a CSV of Blockchain checkpoints for faster sync. A value of 'default' uses the built-in checkpoints.",
         cxxopts::value<std::string>()->default_value(config.checkPoints), "<path>")
       ("log-file", "Specify the <path> to the log file", cxxopts::value<std::string>()->default_value(config.logFile), "<path>")
@@ -142,6 +143,11 @@ namespace DaemonConfig{
       if (cli.count("data-dir") > 0)
       {
         config.dataDirectory = cli["data-dir"].as<std::string>();
+      }
+      
+      if (cli.count("lmdb") > 0)
+      {
+        config.useLmdbForLocalCaches = cli["lmdb"].as<bool>();
       }
 
       if (cli.count("load-checkpoints") > 0)
@@ -331,6 +337,11 @@ namespace DaemonConfig{
           config.dataDirectory = cfgValue;
           updated = true;
         }
+        else if (cfgKey.compare("lmdb") == 0)
+        {
+          config.useLmdbForLocalCaches = cfgValue.at(0) == '1';
+          updated = true;
+        }        
         else if (cfgKey.compare("load-checkpoints") == 0)
         {
           config.checkPoints = cfgValue;
@@ -568,6 +579,11 @@ namespace DaemonConfig{
     {
       config.dataDirectory = j["data-dir"].get<std::string>();
     }
+    
+    if (j.find("lmdb") != j.end())
+    {
+      config.useLmdbForLocalCaches = j["lmdb"].get<bool>();
+    }
 
     if (j.find("load-checkpoints") != j.end())
     {
@@ -694,6 +710,7 @@ namespace DaemonConfig{
   {
     json j = json {
       {"data-dir", config.dataDirectory},
+      {"lmdb", config.useLmdbForLocalCaches},      
       {"load-checkpoints", config.checkPoints},
       {"log-file", config.logFile},
       {"log-level", config.logLevel},

@@ -28,6 +28,7 @@ namespace DaemonConfig {
       dbReadCacheSizeMB = CryptoNote::DATABASE_READ_BUFFER_MB_DEFAULT_SIZE;
       dbThreads = CryptoNote::DATABASE_DEFAULT_BACKGROUND_THREADS_COUNT;
       dbWriteBufferSizeMB = CryptoNote::DATABASE_WRITE_BUFFER_MB_DEFAULT_SIZE;
+
       rewindToHeight = 0;
       p2pInterface = "0.0.0.0";
       p2pPort = CryptoNote::P2P_DEFAULT_PORT;
@@ -44,6 +45,7 @@ namespace DaemonConfig {
       printGenesisTx = false;
       dumpConfig = false;
       useSqliteForLocalCaches = false;
+      useLmdbForLocalCaches = false;
       resync = false;
     }
 
@@ -87,6 +89,7 @@ namespace DaemonConfig {
     bool printGenesisTx;
     bool dumpConfig;
     bool useSqliteForLocalCaches;
+    bool useLmdbForLocalCaches;
   };
 
   DaemonConfiguration initConfiguration(const char* path);

@@ -109,7 +109,7 @@ namespace CryptoNote
         }
     }
 
-    RawBlock MainChainStorageSqlite::getBlockByIndex(uint32_t index) const
+    RawBlock MainChainStorageSqlite::getBlockByIndex(const uint32_t index)
     {
         sqlite3_stmt *stmt;
         RawBlock rawBlock = {};
