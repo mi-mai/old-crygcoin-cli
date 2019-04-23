@@ -37,6 +37,8 @@ find_package(Threads)
 
 set(VERSION "0.1")
 
+set(USE_ROCKSDB OFF CACHE BOOL "Build with rocksdb backend?")
+
 ## This section describes build options for additional support in the project
 set(ENABLE_SSL OFF CACHE STRING "Enable SSL support")
 
@@ -275,9 +277,11 @@ add_subdirectory(external)
 add_subdirectory(src)
 
 ## We need to setup the RocksDB build environment to match our system
-if(NOT MSVC)
-  execute_process(
-    COMMAND cmake ${CMAKE_CURRENT_SOURCE_DIR}/external/rocksdb -DWITH_GFLAGS=0 -DCMAKE_BUILD_TYPE=MinSizeRel -DWITH_TESTS=OFF -DWITH_TOOLS=OFF -DPORTABLE=ON -B${PROJECT_BINARY_DIR}/rocksdb
-  )
-  set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${PROJECT_BINARY_DIR}/rocksdb/librocksdb.a")
+if(USE_ROCKSDB)
+  if(NOT MSVC)
+    execute_process(
+      COMMAND cmake ${CMAKE_CURRENT_SOURCE_DIR}/external/rocksdb -DWITH_GFLAGS=0 -DCMAKE_BUILD_TYPE=MinSizeRel -DWITH_TESTS=OFF -DWITH_TOOLS=OFF -DPORTABLE=ON -B${PROJECT_BINARY_DIR}/rocksdb
+    )
+    set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${PROJECT_BINARY_DIR}/rocksdb/librocksdb.a")
+  endif()
 endif()

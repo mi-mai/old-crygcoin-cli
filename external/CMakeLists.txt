@@ -6,20 +6,27 @@ set(WITH_MD_LIBRARY OFF CACHE BOOL "Code Generation for static library")
 add_subdirectory(miniupnpc)
 add_subdirectory(cryptopp)
 add_subdirectory(sqlite3)
+add_subdirectory(lmdb)
 
 if(MSVC)
-    add_subdirectory(rocksDB EXCLUDE_FROM_ALL)
-    set_property(TARGET upnpc-static cryptopp-static rocksdb sqlite3 PROPERTY FOLDER "external")
+    if(USE_ROCKSDB)
+        add_subdirectory(rocksDB EXCLUDE_FROM_ALL)
+        set_property(TARGET upnpc-static cryptopp-static rocksdb sqlite3 lmdb PROPERTY FOLDER "external")
+    else()
+        set_property(TARGET upnpc-static cryptopp-static sqlite3 lmdb PROPERTY FOLDER "external")
+    endif()
 elseif(NOT MSVC)
-    set_property(TARGET upnpc-static cryptopp-static sqlite3 PROPERTY FOLDER "external")
-    add_custom_target(
-       rocksdb
-       COMMAND $(MAKE) rocksdb
-       WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/rocksdb
-    )
-    add_library(rocksdblib STATIC IMPORTED GLOBAL)
-    set_target_properties(rocksdblib PROPERTIES IMPORTED_LOCATION ${PROJECT_BINARY_DIR}/rocksdb/librocksdb.a)
-    add_dependencies(rocksdblib rocksdb)
+    set_property(TARGET upnpc-static cryptopp-static sqlite3 lmdb PROPERTY FOLDER "external")
+    if(USE_ROCKSDB)
+        add_custom_target(
+          rocksdb
+          COMMAND $(MAKE) rocksdb
+          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/rocksdb
+        )
+        add_library(rocksdblib STATIC IMPORTED GLOBAL)
+        set_target_properties(rocksdblib PROPERTIES IMPORTED_LOCATION ${PROJECT_BINARY_DIR}/rocksdb/librocksdb.a)
+        add_dependencies(rocksdblib rocksdb)
+    endif()
 endif()
 
 if(MSVC)

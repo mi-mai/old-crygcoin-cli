@@ -2,7 +2,10 @@
 add_definitions(-DSTATICLIB)
 
 # Add external libraries as include dirs, so we can do #include "httplib" for example
-include_directories(${CMAKE_SOURCE_DIR}/external/rocksdb/include)
+if(USE_ROCKSDB)
+    include_directories(${CMAKE_SOURCE_DIR}/external/rocksdb/include)
+endif()
+
 include_directories(${CMAKE_SOURCE_DIR}/external/cpp-linenoise)
 include_directories(${CMAKE_SOURCE_DIR}/external/cpp-httplib)
 include_directories(${CMAKE_SOURCE_DIR}/external/nlohmann-json)
@@ -10,7 +13,7 @@ include_directories(${CMAKE_SOURCE_DIR}/external/rapidjson)
 include_directories(${CMAKE_SOURCE_DIR}/external/cxxopts)
 include_directories(${CMAKE_SOURCE_DIR}/external/cryptopp)
 include_directories(${CMAKE_SOURCE_DIR}/external/sqlite3)
-
+include_directories(${CMAKE_SOURCE_DIR}/external/lmdb)
 # Show cmake where the source files are
 # Note, if you add remove a source file, you will need to re-run cmake so it
 # can find the new file
@@ -125,9 +128,17 @@ elseif (UNIX)
 endif()
 
 if(MSVC)
-	target_link_libraries(TurtleCoind System CryptoNoteCore rocksdb sqlite3 ${Boost_LIBRARIES})
+    if(USE_ROCKSDB)
+	    target_link_libraries(TurtleCoind System CryptoNoteCore rocksdb sqlite3 lmdb ${Boost_LIBRARIES})
+	else()
+	    target_link_libraries(TurtleCoind System CryptoNoteCore sqlite3 lmdb ${Boost_LIBRARIES})
+	endif()
 else()
-	target_link_libraries(TurtleCoind System CryptoNoteCore rocksdblib sqlite3 ${Boost_LIBRARIES})
+    if(USE_ROCKSDB)
+	    target_link_libraries(TurtleCoind System CryptoNoteCore rocksdblib sqlite3 lmdb ${Boost_LIBRARIES})
+	else()
+	    target_link_libraries(TurtleCoind System CryptoNoteCore sqlite3 lmdb ${Boost_LIBRARIES})
+	endif()
 endif()
 
 # Add the dependencies we need

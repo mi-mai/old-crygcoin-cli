@@ -23,7 +23,8 @@
 #include "CryptoNoteCore/DatabaseBlockchainCacheFactory.h"
 #include "CryptoNoteCore/MainChainStorage.h"
 #include "CryptoNoteCore/MainChainStorageSqlite.h"
-#include "CryptoNoteCore/RocksDBWrapper.h"
+#include "CryptoNoteCore/MainChainStorageLmdb.h"
+#include "CryptoNoteCore/LmDBWrapper.h"
 #include "CryptoNoteProtocol/CryptoNoteProtocolHandler.h"
 #include "P2p/NetNode.h"
 #include "P2p/NetNodeConfig.h"
@@ -199,6 +200,7 @@ int main(int argc, char* argv[])
       config.dataDirectory + "/" + CryptoNote::parameters::CRYPTONOTE_BLOCKINDEXES_FILENAME,
       config.dataDirectory + "/" + CryptoNote::parameters::P2P_NET_DATA_FILENAME,
       config.dataDirectory + "/" + CryptoNote::parameters::CRYPTONOTE_BLOCKS_FILENAME + ".sqlite3",
+      config.dataDirectory + "/" + CryptoNote::parameters::CRYPTONOTE_BLOCKS_FILENAME + ".mdb",
       config.dataDirectory + "/DB"
     };
 
@@ -260,6 +262,10 @@ int main(int argc, char* argv[])
       {
         mainChainStorage = createSwappedMainChainStorageSqlite(config.dataDirectory, currency);
       }
+      else if (config.useLmdbForLocalCaches)
+      {
+        mainChainStorage = createSwappedMainChainStorageLmdb(config.dataDirectory, currency);
+      }
       else
       {
         mainChainStorage = createSwappedMainChainStorage(config.dataDirectory, currency);
@@ -308,8 +314,8 @@ int main(int argc, char* argv[])
     {
       throw std::runtime_error("Can't create directory: " + dbConfig.getDataDir());
     }
-
-    RocksDBWrapper database(logManager);
+    
+    LmDBWrapper database(logManager);
     database.init(dbConfig);
     Tools::ScopeExit dbShutdownOnExit([&database] () { database.shutdown(); });
 
@@ -326,15 +332,28 @@ int main(int argc, char* argv[])
 
     System::Dispatcher dispatcher;
     logger(INFO) << "Initializing core...";
+    
+    std::unique_ptr<IMainChainStorage> mChainStorage;
+    if (config.useSqliteForLocalCaches) 
+    {
+        mChainStorage = createSwappedMainChainStorageSqlite(config.dataDirectory, currency);
+    }
+    else if (config.useLmdbForLocalCaches) 
+    {
+        mChainStorage = createSwappedMainChainStorageLmdb(config.dataDirectory, currency);    
+    }
+    else
+    {
+        mChainStorage = createSwappedMainChainStorage(config.dataDirectory, currency);
+    }
+    
     CryptoNote::Core ccore(
       currency,
       logManager,
       std::move(checkpoints),
       dispatcher,
       std::unique_ptr<IBlockchainCacheFactory>(new DatabaseBlockchainCacheFactory(database, logger.getLogger())),
-      (config.useSqliteForLocalCaches) ?
-        createSwappedMainChainStorageSqlite(config.dataDirectory, currency) :
-        createSwappedMainChainStorage(config.dataDirectory, currency)
+      std::move(mChainStorage)
     );
 
     ccore.load();
