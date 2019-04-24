@@ -32,7 +32,6 @@ namespace CryptoNote
         private:
             void initializeBlockCount();
             void checkResize();
-            bool needResize();
             void renewRoTxn();
             
             lmdb::env m_db = lmdb::env::create();

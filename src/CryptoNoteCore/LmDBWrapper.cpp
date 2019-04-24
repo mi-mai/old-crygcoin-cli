@@ -21,7 +21,7 @@ namespace
 {
     const std::string DB_NAME = "DB";
     const std::string TESTNET_DB_NAME = "testnet_DB";
-    const uint64_t MAX_DIRTY = 100000;
+    const uint64_t MAX_DIRTY = 200000;
 }
 
 LmDBWrapper::LmDBWrapper(std::shared_ptr<Logging::ILogger> logger) : logger(logger, "LmDBWrapper"), state(NOT_INITIALIZED){}
@@ -78,6 +78,8 @@ void LmDBWrapper::init(const DataBaseConfig& config)
     
     m_db.set_mapsize(mapsize);
     
+    logger(DEBUGGING) << "Initial DB mapsize: " << mapsize << " bytes";
+    
     logger(INFO) << "Opening DB in " << m_dbDir;
     try
     {
@@ -122,12 +124,12 @@ void LmDBWrapper::destroy(const DataBaseConfig& config)
     lmdb::dbi dbi;
 
     {
-        auto wtxn = lmdb::txn::begin(m_db);
-        dbi = lmdb::dbi::open(wtxn, nullptr);
+        auto txn = lmdb::txn::begin(m_db);
+        dbi = lmdb::dbi::open(txn, nullptr);
 
         try
         {
-            dbi.drop(wtxn, 0);
+            dbi.drop(txn, 0);
         }
         catch (const std::exception &e)
         {
@@ -135,7 +137,7 @@ void LmDBWrapper::destroy(const DataBaseConfig& config)
             throw std::system_error(make_error_code(CryptoNote::error::DataBaseErrorCodes::INTERNAL_ERROR));
         }
 
-        wtxn.commit();
+        txn.commit();
     }
 
     m_db.sync();
@@ -154,7 +156,7 @@ std::error_code LmDBWrapper::write(IWriteBatch& batch)
     MDB_txn *wtxn;
     lmdb::dbi dbi;
     std::error_code errCode;
-
+    
     try
     {
         lmdb::txn_begin(m_db, nullptr, 0, &wtxn);
@@ -170,16 +172,17 @@ std::error_code LmDBWrapper::write(IWriteBatch& batch)
     {
         // insert
         const std::vector<std::pair<std::string, std::string>> rawData(batch.extractRawDataToInsert());
+        logger(TRACE) << "Writing rawdata, len: " << rawData.size();
         for (const std::pair<std::string, std::string>& kvPair : rawData)
         {
-            if(!dbi.put(wtxn, kvPair.first, kvPair.second))
+            if(dbi.put(wtxn, kvPair.first, kvPair.second))
             {
-                logger(ERROR) << "dbi.put failed";
-                errCode = make_error_code(CryptoNote::error::DataBaseErrorCodes::INTERNAL_ERROR);
+                m_dirty++;
             }
             else
             {
-                m_dirty++;
+                logger(ERROR) << "dbi.put failed";
+                errCode = make_error_code(CryptoNote::error::DataBaseErrorCodes::INTERNAL_ERROR);
             }
         }
     }
@@ -187,16 +190,17 @@ std::error_code LmDBWrapper::write(IWriteBatch& batch)
     {
         // delete
         const std::vector<std::string> rawKeys(batch.extractRawKeysToRemove());
+        logger(TRACE) << "Removing rawKeys, len: " << rawKeys.size();
         for (const std::string& key : rawKeys)
         {
-            if(!dbi.del(wtxn, key) )
+            if ( dbi.del(wtxn, key) )
             {
-                logger(ERROR) << "dbi.del failed";
-                errCode = make_error_code(CryptoNote::error::DataBaseErrorCodes::INTERNAL_ERROR);
+                m_dirty++;
             }
             else
             {
-                m_dirty++;
+                logger(ERROR) << "dbi.del failed";
+                errCode = make_error_code(CryptoNote::error::DataBaseErrorCodes::INTERNAL_ERROR);
             }
         }
     }
@@ -211,36 +215,23 @@ std::error_code LmDBWrapper::write(IWriteBatch& batch)
         throw std::system_error(make_error_code(CryptoNote::error::DataBaseErrorCodes::INTERNAL_ERROR));
     }
 
+    
     if (m_dirty >= MAX_DIRTY)
     {
-        logger(TRACE) << "Flushing database transaction to disk";
-        m_db.sync();
         m_dirty = 0;
+        //logger(DEBUGGING) << "Flushing dirty commits to disk";
+        logger(INFO) << "Flushing dirty commits to disk";
+        m_db.sync(0);
     }
-
+    
     return errCode;
 }
 
 void LmDBWrapper::checkResize()
 {
-    if(!needResize())
-    {
-        return;
-    }
-    
-    m_db.sync();
-    
-    const uint64_t extra = 1ULL << 30;
-    auto mapsize = fs::file_size(m_dbFile);
-    mapsize += extra;
-    
-    logger(TRACE) << "Resizing database. New mapsize: " << mapsize << " bytes.";
-    m_db.set_mapsize(mapsize);
-}
-
-bool LmDBWrapper::needResize()
-{
-    bool needResize = false;
+    const uint64_t min_avail = 512 * 1024 * 1024;
+    uint64_t size_avail;
+    uint64_t mapsize;
     
     {
         auto rtxn = lmdb::txn::begin(m_db, nullptr, MDB_RDONLY);
@@ -250,19 +241,25 @@ bool LmDBWrapper::needResize()
         MDB_envinfo info;
         lmdb::env_info(m_db, &info);
         
-        const uint64_t threshold = 512 * 1024 * 1024; 
+        mapsize = info.me_mapsize;
         const uint64_t size_used = stat.ms_psize * info.me_last_pgno;
-        const uint64_t size_available = info.me_mapsize - size_used;
-
-        if (size_available <= threshold)
-        {
-            needResize = true;
-        }
+        size_avail = mapsize - size_used;
     }
     
-    return needResize;
+    if(size_avail > min_avail)
+    {
+        logger(TRACE) << "DB Resize: no resize required, size avail: " << size_avail << " bytes.";
+        return;
+    }
+    
+    m_db.sync();
+    
+    const uint64_t extra = 1ULL << 30;
+    mapsize += extra;
+    
+    logger(DEBUGGING) << "Resizing database. New mapsize: " << mapsize << " bytes.";
+    m_db.set_mapsize(mapsize);
 }
-
 
 std::error_code LmDBWrapper::read(IReadBatch& batch)
 {
@@ -272,6 +269,7 @@ std::error_code LmDBWrapper::read(IReadBatch& batch)
     }
 
     const std::vector<std::string> rawKeys(batch.getRawKeys());
+    logger(TRACE) << "Batch reading rawKeys, len: " << rawKeys.size();
     std::vector<bool> resultStates;
     std::vector<std::string> values;
     lmdb::dbi dbi;

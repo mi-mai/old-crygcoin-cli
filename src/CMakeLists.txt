@@ -1,11 +1,6 @@
 # Build statically
 add_definitions(-DSTATICLIB)
 
-# Add external libraries as include dirs, so we can do #include "httplib" for example
-if(USE_ROCKSDB)
-    include_directories(${CMAKE_SOURCE_DIR}/external/rocksdb/include)
-endif()
-
 include_directories(${CMAKE_SOURCE_DIR}/external/cpp-linenoise)
 include_directories(${CMAKE_SOURCE_DIR}/external/cpp-httplib)
 include_directories(${CMAKE_SOURCE_DIR}/external/nlohmann-json)
@@ -128,17 +123,9 @@ elseif (UNIX)
 endif()
 
 if(MSVC)
-    if(USE_ROCKSDB)
-	    target_link_libraries(TurtleCoind System CryptoNoteCore rocksdb sqlite3 lmdb ${Boost_LIBRARIES})
-	else()
-	    target_link_libraries(TurtleCoind System CryptoNoteCore sqlite3 lmdb ${Boost_LIBRARIES})
-	endif()
+    target_link_libraries(TurtleCoind System CryptoNoteCore sqlite3 lmdb ${Boost_LIBRARIES})
 else()
-    if(USE_ROCKSDB)
-	    target_link_libraries(TurtleCoind System CryptoNoteCore rocksdblib sqlite3 lmdb ${Boost_LIBRARIES})
-	else()
-	    target_link_libraries(TurtleCoind System CryptoNoteCore sqlite3 lmdb ${Boost_LIBRARIES})
-	endif()
+    target_link_libraries(TurtleCoind System CryptoNoteCore sqlite3 lmdb ${Boost_LIBRARIES})
 endif()
 
 # Add the dependencies we need
