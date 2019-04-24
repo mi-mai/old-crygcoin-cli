@@ -9,24 +9,9 @@ add_subdirectory(sqlite3)
 add_subdirectory(lmdb)
 
 if(MSVC)
-    if(USE_ROCKSDB)
-        add_subdirectory(rocksDB EXCLUDE_FROM_ALL)
-        set_property(TARGET upnpc-static cryptopp-static rocksdb sqlite3 lmdb PROPERTY FOLDER "external")
-    else()
-        set_property(TARGET upnpc-static cryptopp-static sqlite3 lmdb PROPERTY FOLDER "external")
-    endif()
+    set_property(TARGET upnpc-static cryptopp-static sqlite3 lmdb PROPERTY FOLDER "external")
 elseif(NOT MSVC)
     set_property(TARGET upnpc-static cryptopp-static sqlite3 lmdb PROPERTY FOLDER "external")
-    if(USE_ROCKSDB)
-        add_custom_target(
-          rocksdb
-          COMMAND $(MAKE) rocksdb
-          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/rocksdb
-        )
-        add_library(rocksdblib STATIC IMPORTED GLOBAL)
-        set_target_properties(rocksdblib PROPERTIES IMPORTED_LOCATION ${PROJECT_BINARY_DIR}/rocksdb/librocksdb.a)
-        add_dependencies(rocksdblib rocksdb)
-    endif()
 endif()
 
 if(MSVC)

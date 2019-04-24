@@ -47,7 +47,8 @@ namespace CryptoNote
         try
         {
             //m_db.open(blocksFilename.c_str(), MDB_NOSUBDIR|MDB_NORDAHEAD|MDB_NOMETASYNC|MDB_WRITEMAP|MDB_MAPASYNC, 0664);
-            m_db.open(blocksFilename.c_str(), MDB_NOSUBDIR|MDB_NOSYNC|MDB_WRITEMAP|MDB_MAPASYNC|MDB_NORDAHEAD, 0664);
+            //m_db.open(blocksFilename.c_str(), MDB_NOSUBDIR|MDB_NOSYNC|MDB_WRITEMAP|MDB_MAPASYNC|MDB_NORDAHEAD, 0664);
+            m_db.open(blocksFilename.c_str(), MDB_NOSUBDIR|MDB_WRITEMAP|MDB_MAPASYNC|MDB_NORDAHEAD, 0664);
         }
         catch(std::exception& e)
         {
@@ -66,7 +67,7 @@ namespace CryptoNote
 
     MainChainStorageLmdb::~MainChainStorageLmdb()
     {
-        std::cout << "Closing blockchain db." << std::endl;
+        //std::cout << "Closing blockchain db." << std::endl;
         try { lmdb::txn_commit(wtxn); } catch (...){}
         try { lmdb::txn_commit(rtxn); } catch (...){}
         m_db.sync();
@@ -77,17 +78,19 @@ namespace CryptoNote
     {
 
         
-        const uint64_t max_dirty = 5000;
+        const uint64_t max_dirty = 10000;
         
         // only commit every max_insert
         if(m_dirty == max_dirty)
         {
             // reset commit counter
             m_dirty = 0;
+            
             // commit all pending transactions
             lmdb::txn_commit(wtxn);
-            // flush to disk
-            m_db.sync();
+            
+            // flush to disk (only when using MDB_NOSYNC)
+            //m_db.sync();
             
             // resize when needed
             checkResize();
@@ -103,12 +106,8 @@ namespace CryptoNote
         
         {
             lmdb::dbi dbi = lmdb::dbi::open(wtxn, nullptr);
-            // get blockindex from cached blockcount counter
-            uint32_t nextBlockIndex = m_blockcount;
             
-            // save it
-            std::string pkey = std::to_string(nextBlockIndex);
-            dbi.put(wtxn, pkey, rblock.GetString());
+            dbi.put(wtxn, std::to_string(m_blockcount), rblock.GetString());
             
             if(m_blockcount == 0)
             {
@@ -116,7 +115,7 @@ namespace CryptoNote
                 m_db.sync();
                 lmdb::txn_begin(m_db, nullptr, 0, &wtxn);
             }
-
+            
             // increment cached block count couter
             m_blockcount++;
         }
@@ -154,15 +153,20 @@ namespace CryptoNote
         
         lmdb::dbi dbi;
         RawBlock rawBlock;
+        
         {
-            try{
+            try
+            {
                 dbi = lmdb::dbi::open(rtxn, nullptr);
-            }catch(const std::exception& e){
-                std::cout << "ERROR: " << e.what() << std::endl;
             }
-            auto pkey = std::to_string(index);
+            catch(const std::exception& e)
+            {
+                try { lmdb::txn_commit(wtxn); } catch (...){}
+                throw std::runtime_error("Could not find block in cache for given blockIndex: " + std::string(e.what()));
+            }
+            
             std::string_view val;
-            if (dbi.get(rtxn, pkey, val))
+            if (dbi.get(rtxn, std::to_string(index), val))
             {
                 Document doc;
                 if (!doc.Parse<0>(std::string(val)).HasParseError() ) {
@@ -177,7 +181,6 @@ namespace CryptoNote
         if(!found)
         {
             try { lmdb::txn_commit(wtxn); } catch (...){}
-            std::cout << "not found index: " << index << std::endl;
             throw std::runtime_error("Could not find block in cache for given blockIndex: " + std::to_string(index));
         }
         
@@ -192,16 +195,16 @@ namespace CryptoNote
     
     void MainChainStorageLmdb::initializeBlockCount()
     {
+        m_blockcount = 0;
+        
         renewRoTxn();
-        uint64_t maxblocks = 0;
         {
             lmdb::dbi dbi = lmdb::dbi::open(rtxn, nullptr);
             MDB_stat stat = dbi.stat(rtxn);
-            size_t entries = stat.ms_entries;
-            maxblocks = entries;
+            m_blockcount = stat.ms_entries;
         }
-        m_blockcount = maxblocks;
-        std::cout << "Blockcount entries: " << m_blockcount << std::endl;
+        
+        //std::cout << "Blockcount entries: " << m_blockcount << std::endl;
     }
     
     void MainChainStorageLmdb::renewRoTxn()
@@ -225,22 +228,12 @@ namespace CryptoNote
     
     void MainChainStorageLmdb::checkResize()
     {
-        if(!needResize())
-        {
-            return;
-        }
+        /** assumed to be called after all tx has been commited **/
+        const uint64_t min_avail = 512 * 1024 * 1024;
+        uint64_t size_avail;
+        uint64_t mapsize;
         
-        //m_db.sync();
-        uint64_t extra = 1ULL << 30;
-        auto mapsize = fs::file_size(m_dbpath);
-        mapsize += extra;
-        m_db.set_mapsize(mapsize);
-    }
-    
-    bool MainChainStorageLmdb::needResize()
-    {
-        bool needResize = false;
-        
+        // reset/renew ro cursor
         renewRoTxn();
         
         {
@@ -248,18 +241,21 @@ namespace CryptoNote
             MDB_stat stat = dbi.stat(rtxn);
             MDB_envinfo info;
             lmdb::env_info(m_db, &info);
-            const uint64_t threshold = 512 * 1024 * 1024;
-            const uint64_t size_used = stat.ms_psize * info.me_last_pgno;
-            const uint64_t size_available = info.me_mapsize - size_used;
-            if (size_available <= threshold)
-            {
-                needResize = true;
-            }
+            mapsize = info.me_mapsize;
+            size_avail = mapsize - (stat.ms_psize * info.me_last_pgno);
         }
         
-        return needResize;
+        if(size_avail > min_avail) {
+            return;
+        }
+        
+        // flush to disk (only when NOT using MDB_NOSYNC)
+        m_db.sync();
+              
+        mapsize += 1ULL << 30;
+        m_db.set_mapsize(mapsize);
     }
-
+    
     std::unique_ptr<IMainChainStorage> createSwappedMainChainStorageLmdb(const std::string &dataDir, const Currency &currency)
     {
         fs::path blocksFilename = fs::path(dataDir) / currency.blocksFileName();

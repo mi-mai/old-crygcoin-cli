@@ -42,11 +42,6 @@ public:
 
 private:
   void checkResize();
-  bool needResize();
-  //std::error_code write(IWriteBatch& batch, bool sync);
-
-  //rocksdb::Options getDBOptions(const DataBaseConfig& config);
-  //std::string getDataDir(const DataBaseConfig& config);
   void setDataDir(const DataBaseConfig& config);
   fs::path getDataDir(const DataBaseConfig& config);
 
