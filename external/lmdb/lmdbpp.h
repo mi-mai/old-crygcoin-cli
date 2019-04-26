@@ -2,7 +2,7 @@
 
 #ifndef LMDBXX_H
 #define LMDBXX_H
-
+#define LMDBXX_TXN_ID
 /**
  * <lmdb++.h> - C++17 wrapper for LMDB.
  *
