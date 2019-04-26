@@ -9,7 +9,6 @@
 #include <memory>
 #include <string>
 
-
 #include "lmdb.h"
 #include "lmdbpp.h"
 
@@ -19,42 +18,52 @@
 #include <Logging/LoggerRef.h>
 #include <Common/FileSystemShim.h>
 
-namespace CryptoNote {
+namespace CryptoNote
+{
 
-class LmDBWrapper : public IDataBase {
+class LmDBWrapper : public IDataBase
+{
 public:
   LmDBWrapper(std::shared_ptr<Logging::ILogger> logger);
   virtual ~LmDBWrapper();
 
-  LmDBWrapper(const LmDBWrapper&) = delete;
-  LmDBWrapper(LmDBWrapper&&) = delete;
+  LmDBWrapper(const LmDBWrapper &) = delete;
+  LmDBWrapper(LmDBWrapper &&) = delete;
 
-  LmDBWrapper& operator=(const LmDBWrapper&) = delete;
-  LmDBWrapper& operator=(LmDBWrapper&&) = delete;
+  LmDBWrapper &operator=(const LmDBWrapper &) = delete;
+  LmDBWrapper &operator=(LmDBWrapper &&) = delete;
 
-  void init(const DataBaseConfig& config);
+  void init(const DataBaseConfig &config);
   void shutdown();
 
-  void destroy(const DataBaseConfig& config); //Be careful with this method!
+  void destroy(const DataBaseConfig &config); //Be careful with this method!
 
-  std::error_code write(IWriteBatch& batch) override;
-  std::error_code read(IReadBatch& batch) override;
+  std::error_code write(IWriteBatch &batch) override;
+  std::error_code read(IReadBatch &batch) override;
 
 private:
-  void checkResize();
-  void setDataDir(const DataBaseConfig& config);
-  fs::path getDataDir(const DataBaseConfig& config);
+  void checkResize(const bool init);
+  void setDataDir(const DataBaseConfig &config);
+  fs::path getDataDir(const DataBaseConfig &config);
+  void renewRoTxHandle();
+  void renewRwTxHandle(bool sync);
 
-  enum State {
+  enum State
+  {
     NOT_INITIALIZED,
     INITIALIZED
   };
 
   Logging::LoggerRef logger;
   std::atomic<State> state;
+  std::atomic_uint m_dirty;
   fs::path m_dbDir;
   fs::path m_dbFile;
-  lmdb::env m_db  = lmdb::env::create();
-  std::atomic_uint m_dirty;
+
+  lmdb::env m_db = lmdb::env::create();
+  MDB_txn *rotxn;
+  MDB_txn *rwtxn;
+  lmdb::dbi rodbi;
+  lmdb::dbi rwdbi;
 };
-}
+} // namespace CryptoNote
