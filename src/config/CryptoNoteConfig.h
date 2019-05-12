@@ -21,7 +21,7 @@ const uint64_t DIFFICULTY_TARGET                             = 30; // seconds
 const uint32_t CRYPTONOTE_MAX_BLOCK_NUMBER                   = 500000000;
 const size_t   CRYPTONOTE_MAX_BLOCK_BLOB_SIZE                = 500000000;
 const size_t   CRYPTONOTE_MAX_TX_SIZE                        = 1000000000;
-const uint64_t CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX       = 3914525;
+const uint64_t CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX       = 3728339;
 const uint32_t CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW          = 40;
 const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT            = 60 * 60 * 2;
 const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT_V3         = 3 * DIFFICULTY_TARGET;
@@ -31,7 +31,7 @@ const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW             = 60;
 const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW_V3          = 11;
 
 // MONEY_SUPPLY - total number coins to be generated
-const uint64_t MONEY_SUPPLY                                  = UINT64_C(100000000000000);
+const uint64_t MONEY_SUPPLY                                  = UINT64_C(100000000000);
 const uint32_t ZAWY_DIFFICULTY_BLOCK_INDEX                   = 187000;
 const size_t   ZAWY_DIFFICULTY_V2                            = 0;
 const uint8_t  ZAWY_DIFFICULTY_DIFFICULTY_BLOCK_VERSION      = 3;
@@ -152,8 +152,8 @@ const size_t   FUSION_TX_MIN_IN_OUT_COUNT_RATIO              = 4;
 
 const uint32_t UPGRADE_HEIGHT_V2                             = 1;
 const uint32_t UPGRADE_HEIGHT_V3                             = 2;
-const uint32_t UPGRADE_HEIGHT_V4                             = 350000; // Upgrade height for CN-Lite Variant 1 switch.
-const uint32_t UPGRADE_HEIGHT_V5                             = 1200000; // Upgrade height for CN-Turtle Variant 2 switch.
+const uint32_t UPGRADE_HEIGHT_V4                             = 3; // Upgrade height for CN-Lite Variant 1 switch.
+const uint32_t UPGRADE_HEIGHT_V5                             = 4; // Upgrade height for CN-Turtle Variant 2 switch.
 const uint32_t UPGRADE_HEIGHT_CURRENT                        = UPGRADE_HEIGHT_V5;
 
 const unsigned UPGRADE_VOTING_THRESHOLD                      = 90;               // percent
@@ -165,23 +165,11 @@ static_assert(UPGRADE_VOTING_WINDOW > 1, "Bad UPGRADE_VOTING_WINDOW");
 /* Block heights we are going to have hard forks at */
 const uint64_t FORK_HEIGHTS[] =
 {
-    187000,  // 0
-    350000,  // 1
-    440000,  // 2
-    620000,  // 3
-    700000,  // 4
-    800000,  // 5
-    1000000, // 6
-    1200000, // 7
-    1300000, // 8
-    1400000, // 9
-    1600000, // 10
-    1800000, // 11
-    2000000, // 12
+    1000000, // 0    
 };
 
 /* MAKE SURE TO UPDATE THIS VALUE WITH EVERY MAJOR RELEASE BEFORE A FORK */
-const uint64_t SOFTWARE_SUPPORTED_FORK_INDEX                 = 9;
+const uint64_t SOFTWARE_SUPPORTED_FORK_INDEX                 = 0;
 
 const uint64_t FORK_HEIGHTS_SIZE = sizeof(FORK_HEIGHTS) / sizeof(*FORK_HEIGHTS);
 
@@ -204,7 +192,7 @@ const char     P2P_NET_DATA_FILENAME[]                       = "p2pstate.bin";
 const char     MINER_CONFIG_FILE_NAME[]                      = "miner_conf.json";
 } // parameters
 
-const char     CRYPTONOTE_NAME[]                             = "TurtleCoin";
+const char     CRYPTONOTE_NAME[]                             = "CrygCoin";
 
 const uint8_t  TRANSACTION_VERSION_1                         =  1;
 const uint8_t  TRANSACTION_VERSION_2                         =  2;
@@ -223,8 +211,8 @@ const size_t   BLOCKS_IDS_SYNCHRONIZING_DEFAULT_COUNT        =  10000;  //by def
 const uint64_t BLOCKS_SYNCHRONIZING_DEFAULT_COUNT            =  100;    //by default, blocks count in blocks downloading
 const size_t   COMMAND_RPC_GET_BLOCKS_FAST_MAX_COUNT         =  1000;
 
-const int      P2P_DEFAULT_PORT                              =  11897;
-const int      RPC_DEFAULT_PORT                              =  11898;
+const int      P2P_DEFAULT_PORT                              =  18897;
+const int      RPC_DEFAULT_PORT                              =  18898;
 const int      SERVICE_DEFAULT_PORT                          =  8070;
 
 const size_t   P2P_LOCAL_WHITE_PEERLIST_LIMIT                =  1000;
@@ -259,17 +247,16 @@ const uint64_t DATABASE_READ_BUFFER_MB_DEFAULT_SIZE          = 10;
 const uint32_t DATABASE_DEFAULT_MAX_OPEN_FILES               = 100;
 const uint16_t DATABASE_DEFAULT_BACKGROUND_THREADS_COUNT     = 2;
 
-const char     LATEST_VERSION_URL[]                          = "http://latest.turtlecoin.lol";
-const std::string LICENSE_URL                                = "https://github.com/turtlecoin/turtlecoin/blob/master/LICENSE";
+const char     LATEST_VERSION_URL[]                          = "http://crygc.xyz";
+const std::string LICENSE_URL                                = "https://github.com/mi-mai/crygcoin-cli/blob/master/LICENSE";
 const static   boost::uuids::uuid CRYPTONOTE_NETWORK         =
 {
     {  0xb5, 0x0c, 0x4a, 0x6c, 0xcf, 0x52, 0x57, 0x41, 0x65, 0xf9, 0x91, 0xa4, 0xb6, 0xc1, 0x43, 0xe9  }
 };
 
 const char* const SEED_NODES[] = {
-  "206.189.142.142:11897",//rock
-  "145.239.88.119:11999", //cision
-  "142.44.242.106:11897", //tom
-  "165.227.252.132:11897" //iburnmycd
-};
+  "192.168.0.70:18897",//nd1
+  "192.168.0.71:18897",//nd2
+  "192.168.0.72:18897",//nd3
+  };
 } // CryptoNote
