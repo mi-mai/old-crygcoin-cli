@@ -1,6 +1,7 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
 // Copyright (c) 2014-2018, The Monero Project
 // Copyright (c) 2018-2019, The TurtleCoin Developers
+// Copyright (c) 2019, The CryGCoin Developers
 //
 // Please see the included LICENSE file for more information.
 
@@ -72,7 +73,7 @@ static_assert(sizeof(GENESIS_COINBASE_TX_HEX)/sizeof(*GENESIS_COINBASE_TX_HEX) !
 /* This is the unix timestamp of the first "mined" block (technically block 2, not the genesis block)
    You can get this value by doing "print_block 2" in TurtleCoind. It is used to know what timestamp
    to import from when the block height cannot be found in the node or the node is offline. */
-const uint64_t GENESIS_BLOCK_TIMESTAMP                       = 1512800692;
+const uint64_t GENESIS_BLOCK_TIMESTAMP                       = 1557660201;
 
 const size_t   CRYPTONOTE_REWARD_BLOCKS_WINDOW               = 100;
 const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE     = 100000; //size of block (bytes) after which reward for block calculated using block size
@@ -247,7 +248,7 @@ const uint64_t DATABASE_READ_BUFFER_MB_DEFAULT_SIZE          = 10;
 const uint32_t DATABASE_DEFAULT_MAX_OPEN_FILES               = 100;
 const uint16_t DATABASE_DEFAULT_BACKGROUND_THREADS_COUNT     = 2;
 
-const char     LATEST_VERSION_URL[]                          = "http://crygc.xyz";
+const char     LATEST_VERSION_URL[]                          = "http://cryg.xyz";
 const std::string LICENSE_URL                                = "https://github.com/mi-mai/crygcoin-cli/blob/master/LICENSE";
 const static   boost::uuids::uuid CRYPTONOTE_NETWORK         =
 {
@@ -255,8 +256,14 @@ const static   boost::uuids::uuid CRYPTONOTE_NETWORK         =
 };
 
 const char* const SEED_NODES[] = {
-  "192.168.0.70:18897",//nd1
-  "192.168.0.71:18897",//nd2
-  "192.168.0.72:18897",//nd3
+  "nd1.cryg.xyz:18897",//nd1
+  "nd2.cryg.xyz:18897",//nd2
+  "nd3.cryg.xyz:18897",//nd3
+  "nd4.cryg.xyz:18897",//nd4
+  "185.251.38.191:18897",//nd5
+  "192.168.0.70:18897",//Test_nd1
+  "192.168.0.71:18897",//Test_nd2
+  "192.168.0.72:18897",//Test_nd3
+
   };
 } // CryptoNote
