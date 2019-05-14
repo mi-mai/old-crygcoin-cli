@@ -8,7 +8,7 @@
 
 ### Installing
 
-We offer binary images of the latest releases here: http://cryg.xyz
+We offer binary images of the latest releases here: https://github.com/mi-mai/crygcoin-cli/releases
 
 If you would like to compile yourself, read on.
 
