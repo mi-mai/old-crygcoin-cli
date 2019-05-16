@@ -1,4 +1,4 @@
-![image](https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/No_Logo_logo.svg/220px-No_Logo_logo.svg.png)
+![image](http://cryg.xyz/img/cryg_horyzontal.png)
 
 #### Master Build Status
 [![Build Status](https://travis-ci.org/crygcoin/crygcoin.svg?branch=master)](https://travis-ci.org/crygcoin/crygcoin) [![Build status](https://ci.appveyor.com/api/projects/status/github/crygcoin/turtlecoin?branch=master&svg=true)](https://ci.appveyor.com/project/mi-mai/crygcoin)
