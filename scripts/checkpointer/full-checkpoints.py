@@ -22,25 +22,27 @@ def height():
     base_url = 'http://localhost:18898/getheight'
     resp = requests.get(base_url).json()
     if 'height' not in resp:
-        print ('Unexpected response, make sure CrygCoind is running',
-               resp)
+        print('Unexpected response, make sure CrygCoind is running',
+              resp)
         sys.exit(-1)
     else:
         return resp['height']
 
 
-def rpc(method, params={}):
+def rpc(method, params=None):
+    if params is None:
+        params = {}
     base_url = 'http://localhost:18898/json_rpc'
     payload = {
         'jsonrpc': '2.0',
         'id': 'block_info',
         'method': method,
         'params': params,
-        }
+    }
     resp = requests.post(base_url, data=json.dumps(payload)).json()
     if 'result' not in resp:
-        print ('Unexpected response, make sure CrygCoind is running with block explorer enabled'
-               , resp)
+        print('Unexpected response, make sure CrygCoind is running with block explorer enabled'
+              , resp)
         sys.exit(-1)
     else:
         return resp['result']
@@ -64,13 +66,13 @@ while current_height > stop_height:
     try:
         blocks = get_block_info(current_height)
         for b in blocks:
-            print '%(height)s,%(hash)s' % b
+            print('%(height)s,%(hash)s' % b)
             all_blocks.append('%(height)s,%(hash)s' % b)
             current_height = b['height'] - 1
             if current_height < stop_height:
                 break
     except:
-        print "Whoops... let's try that again"
+        print("Whoops... let's try that again")
 
 all_blocks.reverse()
 
