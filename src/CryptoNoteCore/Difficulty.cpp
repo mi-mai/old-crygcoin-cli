@@ -17,9 +17,14 @@ uint64_t nextDifficultyV5(std::vector<uint64_t> timestamps, std::vector<uint64_t
     int64_t N = CryptoNote::parameters::DIFFICULTY_WINDOW_V3;
     int64_t L(0), ST, sum_3_ST(0), next_D, prev_D;
 
+//fix network error
+//   const uint64_t TIMESTAMP511903 = 1559431870;
+
     /* If we are starting up, returning a difficulty guess. If you are a
        new coin, you might want to set this to a decent estimate of your
        hashrate */
+	   
+	std::cout << "timestamps.size() " << timestamps.size() << std::endl;
     if (timestamps.size() < static_cast<uint64_t>(N+1))
     {
         return 10000;
