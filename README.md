@@ -36,9 +36,8 @@ If you are using Clang, you will need Clang 6.0 or higher. You will also need li
 - `export CC=gcc-8`
 - `export CXX=g++-8`
 - `git clone -b master --single-branch https://github.com/mi-mai/crygcoin-cli`
-- `cd crygcoin-cli`
-- 'mkdir crygcoin-cli/build'
-- 'cd crygcoin-cli/build'
+- `mkdir crygcoin-cli/build`
+- `cd crygcoin-cli/build`
 - `cmake ..`
 - `make`
 
