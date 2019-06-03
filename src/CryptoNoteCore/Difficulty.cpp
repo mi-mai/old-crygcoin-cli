@@ -8,6 +8,7 @@
 #include "Difficulty.h"
 
 #include <config/CryptoNoteConfig.h>
+#include <Utilities/ColouredMsg.h>
 
 // LWMA-2 difficulty algorithm 
 // Copyright (c) 2017-2018 Zawy, MIT License
