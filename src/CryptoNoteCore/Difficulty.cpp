@@ -3,6 +3,7 @@
 // Please see the included LICENSE file for more information.
 
 #include <algorithm>
+#include <iostream>
 
 #include "Difficulty.h"
 
