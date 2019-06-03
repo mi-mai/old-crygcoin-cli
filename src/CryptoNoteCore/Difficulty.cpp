@@ -24,7 +24,10 @@ uint64_t nextDifficultyV5(std::vector<uint64_t> timestamps, std::vector<uint64_t
        new coin, you might want to set this to a decent estimate of your
        hashrate */
 	   
-	std::cout << "timestamps.size() " << timestamps.size() << std::endl;
+//	std::cout << "timestamps.size() " << timestamps.size() << std::endl;
+    std::cout << WarningMsg("timestamps.size()")
+                  << WarningMsg(timestamps.size()) << std::endl;
+
     if (timestamps.size() < static_cast<uint64_t>(N+1))
     {
         return 10000;
